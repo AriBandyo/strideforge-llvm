@@ -1,0 +1,27 @@
+# Builds and CMake
+/build/
+/cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+# Test and benchmark outputs
+*.so
+*.dylib
+*.dll
+*.o
+*.bc
+*.profraw
+*.profdata
+*.pyc
+__pycache__/
+.pytest_cache/
+.venv/
+/results/
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/
+
+/build/
+__pycache__/
+*.pyc

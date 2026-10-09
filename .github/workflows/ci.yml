@@ -1,0 +1,28 @@
+name: LLVM 18 validation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install LLVM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm-18-dev llvm-18-tools clang-18 ninja-build cmake python3
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DLLVM_DIR=/usr/lib/llvm-18/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: Verify affine bitvector identity
+        run: python3 -m unittest discover -s tests/python -v
+      - name: Verify independent expected IR
+        run: python3 tools/check_reference.py --clang /usr/bin/clang-18
+      - name: Verify and differential test
+        run: |
+          PLUGIN=$(find build -name '*StrideForge*.so' | head -1)
+          test -n "$PLUGIN"
+          python3 tools/test_ir.py --opt /usr/lib/llvm-18/bin/opt --clang /usr/bin/clang-18 --plugin "$PLUGIN"
